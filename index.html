@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>منصة ريادة لدعم الشباب</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      direction: rtl;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+
+    h2 {
+      text-align: center;
+      background-color: #004080;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .dob-selects {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dob-selects select {
+      width: 32%;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      background-color: #004080;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #003366;
+    }
+
+    .note {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>منصة ريادة لدعم الشباب</h2>
+
+    <label for="fullname">الاسم الثلاثي</label>
+    <input id="fullname" placeholder="ادخل الاسم الثلاثي">
+
+    <label for="country">البلد</label>
+    <input id="country" value="العراق - Iraq">
+
+    <label for="province">المحافظة</label>
+    <select id="province" onchange="populateAreas()">
+      <option value="">اختر المحافظة</option>
+      <option value="بغداد">بغداد</option>
+      <option value="البصرة">البصرة</option>
+      <option value="نينوى">نينوى</option>
+      <option value="الأنبار">الأنبار</option>
+      <option value="كربلاء">كربلاء</option>
+      <option value="النجف">النجف</option>
+      <option value="ذي قار">ذي قار</option>
+      <option value="ديالى">ديالى</option>
+      <option value="كركوك">كركوك</option>
+      <option value="صلاح الدين">صلاح الدين</option>
+      <option value="بابل">بابل</option>
+      <option value="الديوانية">الديوانية</option>
+      <option value="واسط">واسط</option>
+      <option value="ميسان">ميسان</option>
+      <option value="المثنى">المثنى</option>
+      <option value="دهوك">دهوك</option>
+      <option value="أربيل">أربيل</option>
+      <option value="السليمانية">السليمانية</option>
+    </select>
+
+    <label for="area">المنطقة</label>
+    <input id="area" placeholder="ادخل اسم المنطقة يدويًا">
+
+    <label>تاريخ الميلاد</label>
+    <div class="dob-selects">
+      <select id="age_day"></select>
+      <select id="age_month" onchange="updateDays()"></select>
+      <select id="age_year"></select>
+    </div>
+
+    <label for="job">تفاصيل الوظيفة المطلوبة</label>
+    <textarea id="job" placeholder="مثلاً: أرغب بالعمل داخل مطعم أو كافية أو شركة أو توظيف حكومي..."></textarea>
+
+    <div class="note">الموقع مطلوب لتحسين البحث عن الوظيفة</div>
+    <button onclick="sendData()">إرسال البيانات مع موقعي الحالي</button>
+  </div>
+
+  <script>
+    const areasByProvince = {
+      "بغداد": ["الكرخ", "الرصافة", "الاعظمية", "الزعفرانية"],
+      "البصرة": ["الزبير", "المدينة", "الفاو", "القرنة"],
+      "نينوى": ["الموصل", "تلعفر", "بعاج", "الحمدانية"],
+      "الأنبار": ["الرمادي", "الفلوجة", "هيت", "القائم"],
+      "كربلاء": ["مركز كربلاء", "عين التمر", "الحر"],
+      "النجف": ["الكوفة", "المشخاب", "الحيدرية"],
+      "ذي قار": ["الناصرية", "الشطرة", "سوق الشيوخ"],
+      "ديالى": ["بعقوبة", "الخالص", "المقدادية"],
+      "كركوك": ["مركز كركوك", "الحويجة", "داقوق"],
+      "صلاح الدين": ["تكريت", "سامراء", "الشرقاط"],
+      "بابل": ["الحلة", "المحاويل", "الهاشمية"],
+      "الديوانية": ["الشامية", "عفك", "الحمزة"],
+      "واسط": ["الكوت", "الصويرة", "بدرة"],
+      "ميسان": ["العمارة", "المشرح", "الميمونة"],
+      "المثنى": ["السماوة", "الخضر", "الرميثة"],
+      "دهوك": ["مركز دهوك", "زاخو", "سيميل"],
+      "أربيل": ["مركز أربيل", "شقلاوة", "كويسنجق"],
+      "السليمانية": ["مركز السليمانية", "قلعة دزة", "رانية"]
+    };
+
+    function populateAreas() {
+      const province = document.getElementById("province").value;
+      const areaSelect = document.getElementById("area");
+      areaSelect.innerHTML = "<option value=''>اختر المنطقة</option>";
+      if (areasByProvince[province]) {
+        areasByProvince[province].forEach(area => {
+          let opt = document.createElement("option");
+          opt.value = area;
+          opt.textContent = area;
+          areaSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function updateDays() {
+      const daySelect = document.getElementById("age_day");
+      const month = parseInt(document.getElementById("age_month").value);
+      const year = parseInt(document.getElementById("age_year").value);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      daySelect.innerHTML = "";
+      for (let d = 1; d <= daysInMonth; d++) {
+        let opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        daySelect.appendChild(opt);
+      }
+    }
+
+    window.onload = function() {
+      const yearSelect = document.getElementById("age_year");
+      const monthSelect = document.getElementById("age_month");
+      const daySelect = document.getElementById("age_day");
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear; y >= 1950; y--) {
+        let opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+      }
+      for (let m = 1; m <= 12; m++) {
+        let opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = m;
+        monthSelect.appendChild(opt);
+      }
+      updateDays();
+    };
+
+    function sendData() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+
+          const fullname = document.getElementById('fullname').value;
+          const country = document.getElementById('country').value;
+          const province = document.getElementById('province').value;
+          const area = document.getElementById('area').value;
+          const ageDay = document.getElementById('age_day').value;
+          const ageMonth = document.getElementById('age_month').value;
+          const ageYear = document.getElementById('age_year').value;
+          const job = document.getElementById('job').value;
+
+          const msg = `📋 بيانات المتقدم:\nالاسم: ${fullname}\nالبلد: ${country}\nالمحافظة: ${province}\nالمنطقة: ${area}\nالعمر: ${ageDay}-${ageMonth}-${ageYear}\nالوظيفة المطلوبة: ${job}\n📍 موقعي الحالي: ${mapUrl}`;
+          const encoded = encodeURIComponent(msg);
+          const phone = "9647736578905";
+          window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
+        }, function(error) {
+          alert("فشل في جلب الموقع: " + error.message);
+        });
+      } else {
+        alert("المتصفح لا يدعم تحديد الموقع");
+      }
+    }
+  </script>
+</body>
+</html>
